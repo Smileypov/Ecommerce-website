@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Your Shopping Cart - EcommerceKIM{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Shopping Cart</h2>
+
+{% if cart_items %}
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th style="width: 150px;">Quantity</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="me-3 rounded">
+                                        {% else %}
+                                            <img src="https://via.placeholder.com/50" alt="No image" class="me-3 rounded">
+                                        {% endif %}
+                                        <a href="{{ item.product.get_absolute_url }}" class="text-decoration-none fw-bold">{{ item.product.name }}</a>
+                                    </div>
+                                </td>
+                                <td>${{ item.product.price }}</td>
+                                <td>
+                                    <form action="{% url 'cart:update_cart' item.product.id %}" method="POST" class="d-flex gap-1">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 60px;">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
+                                    </form>
+                                </td>
+                                <td class="fw-bold">${{ item.product.price }}</td>
+                                <td>
+                                    <a href="{% url 'cart:remove_from_cart' item.product.id %}" class="btn btn-sm btn-outline-danger">Remove</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 justify-content-end">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span class="fw-bold">${{ subtotal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Shipping:</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="h5">Total:</span>
+                        <span class="h5 fw-bold text-primary">${{ total_price }}</span>
+                    </div>
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary btn-lg w-100">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329062.png" alt="Empty Cart" style="width: 150px; opacity: 0.5;">
+        </div>
+        <h3 class="text-muted">Your cart is empty</h3>
+        <p>Looks like you haven't added anything to your cart yet.</p>
+        <a href="{% url 'store:product_list' %}" class="btn btn-primary mt-3">Start Shopping</a>
+    </div>
+{% endif %}
+{% endblock %}
